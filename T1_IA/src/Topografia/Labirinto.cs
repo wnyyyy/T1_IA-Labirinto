@@ -44,7 +44,7 @@ namespace T1_IA
                         Celulas.Add(celula.Coords, celula);                        
                     }
 
-                    foreach (Caminho vizinho in _getCamposVizinhos(celula.Coords, Dimensao))
+                    foreach (Caminho vizinho in _getCamposVizinhos(celula.Coords))
                     {
                         Celula? destino;
                         if (!Celulas.TryGetValue(vizinho.Destino, out destino))
@@ -52,36 +52,37 @@ namespace T1_IA
                             destino = new Celula(vizinho.Destino, (TipoCelula)tabela[vizinho.Destino.Item1][vizinho.Destino.Item2]);
                             Celulas.Add(destino.Coords, destino);
                         }
-                        celula.AddCaminho(destino.Coords, vizinho.Direcao);
+                        if (!_diagonalBloqueada(celula.Coords, destino.Coords))
+                            celula.AddCaminho(destino.Coords, vizinho.Direcao);
                     }
                 }
             }
         }
 
-        private List<Caminho> _getCamposVizinhos((int, int) coords, int dimensao)
+        private List<Caminho> _getCamposVizinhos((int, int) coords)
         {
             List<Caminho> ret = new List<Caminho>();
 
             int x = coords.Item1;
             int y = coords.Item2;
 
-            if (_vizinhoValido(dimensao, x, y - 1))
+            if (_vizinhoValido(Dimensao, x, y - 1))
                 ret.Add(new Caminho((x, y - 1), TipoCaminho.Norte));
-            if (_vizinhoValido(dimensao, x, y + 1))
+            if (_vizinhoValido(Dimensao, x, y + 1))
                 ret.Add(new Caminho((x, y + 1), TipoCaminho.Sul));
 
-            if (_vizinhoValido(dimensao, x + 1, y - 1))
+            if (_vizinhoValido(Dimensao, x + 1, y - 1))
                 ret.Add(new Caminho((x + 1, y - 1), TipoCaminho.Nordeste));
-            if (_vizinhoValido(dimensao, x + 1, y))
+            if (_vizinhoValido(Dimensao, x + 1, y))
                 ret.Add(new Caminho((x + 1, y), TipoCaminho.Leste));
-            if (_vizinhoValido(dimensao, x + 1, y + 1))
+            if (_vizinhoValido(Dimensao, x + 1, y + 1))
                 ret.Add(new Caminho((x + 1, y + 1), TipoCaminho.Sudeste));
 
-            if (_vizinhoValido(dimensao, x - 1, y - 1))
+            if (_vizinhoValido(Dimensao, x - 1, y - 1))
                 ret.Add(new Caminho((x - 1, y - 1), TipoCaminho.Noroeste));
-            if (_vizinhoValido(dimensao, x - 1, y))
+            if (_vizinhoValido(Dimensao, x - 1, y))
                 ret.Add(new Caminho((x - 1, y), TipoCaminho.Oeste));
-            if (_vizinhoValido(dimensao, x - 1, y + 1))
+            if (_vizinhoValido(Dimensao, x - 1, y + 1))
                 ret.Add(new Caminho((x - 1, y + 1), TipoCaminho.Nordeste));
 
             return ret;
@@ -92,6 +93,15 @@ namespace T1_IA
             if (x < 0 || x > dimensao-1 || y < 0 || y > dimensao-1)
                 return false;
             return true;
+        }
+
+        private bool _diagonalBloqueada((int, int) origem, (int,int) destino)
+        {
+            List<(int, int)> origVizinhos = _getCamposVizinhos(origem).Select(x => x.Destino).ToList();
+            List<(int, int)> destVizinhos = _getCamposVizinhos(destino).Select(x => x.Destino).ToList();
+            List<(int, int)> common = origVizinhos.Intersect(destVizinhos).ToList();
+
+            return false;
         }
     }
 }

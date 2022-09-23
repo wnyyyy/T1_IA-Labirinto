@@ -17,6 +17,14 @@ namespace T1_IA
             Direcao = direcao;
         }
 
+        public bool IsDiagonal()
+        {
+            return Direcao == TipoCaminho.Noroeste ||
+                   Direcao == TipoCaminho.Nordeste ||
+                   Direcao == TipoCaminho.Sudeste  ||
+                   Direcao == TipoCaminho.Sudoeste;
+        }
+
         public override string ToString()
         {
             return Direcao.ToString() + ": " + Destino.ToString();
