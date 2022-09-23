@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,8 +53,15 @@ namespace T1_IA
                             destino = new Celula(vizinho.Destino, (TipoCelula)tabela[vizinho.Destino.Item1][vizinho.Destino.Item2]);
                             Celulas.Add(destino.Coords, destino);
                         }
-                        if (!_diagonalBloqueada(celula.Coords, destino.Coords))
+                        if (vizinho.IsDiagonal())
+                        {
+                            if (!_diagonalBloqueada(celula.Coords, destino.Coords))
+                                celula.AddCaminho(destino.Coords, vizinho.Direcao);
+                        }
+                        else
+                        {
                             celula.AddCaminho(destino.Coords, vizinho.Direcao);
+                        }
                     }
                 }
             }
@@ -97,11 +105,14 @@ namespace T1_IA
 
         private bool _diagonalBloqueada((int, int) origem, (int,int) destino)
         {
-            List<(int, int)> origVizinhos = _getCamposVizinhos(origem).Select(x => x.Destino).ToList();
-            List<(int, int)> destVizinhos = _getCamposVizinhos(destino).Select(x => x.Destino).ToList();
-            List<(int, int)> common = origVizinhos.Intersect(destVizinhos).ToList();
+            List<Caminho> origVizinhos = _getCamposVizinhos(origem);
+            List<Caminho> destVizinhos = _getCamposVizinhos(destino);
+            List<(int, int)> common = origVizinhos.Select(x => x.Destino).
+                Intersect(destVizinhos.Select(x => x.Destino)).ToList();
 
-            return false;
+            List<Caminho> aux = origVizinhos.Where(x => common.Any(y => y.Equals(x.Destino))).ToList();
+
+            return aux.All(x => !Celulas[x.Destino].IsValido());
         }
     }
 }
