@@ -23,9 +23,9 @@ namespace T1_IA
 
         public bool IsValido() { return !Campo.Equals(TipoCelula.Parede); }
 
-        public void AddCaminho((int, int) destino, TipoCaminho direcao)
+        public void AddCaminho((int, int) destino, (int, int) origem, TipoCaminho direcao)
         {
-            Caminhos.Add(new Caminho(destino, direcao));
+            Caminhos.Add(new Caminho(destino, origem, direcao));
         }
 
         public Caminho GetDirecao(TipoCaminho direcao)

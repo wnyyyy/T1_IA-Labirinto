@@ -11,12 +11,14 @@ namespace T1_IA
         public (int, int) Coords { get; private set; }
         public (int, int) Origem { get; }
         public int Id { get; }
-        public List<Caminho> Rota { get; }
+        public List<Caminho> Rota { get; set; }
         public Labirinto Labirinto { get; }
         public List<(int,int)> ComidasColetadas { get; private set; }
+        public double Aptidao { get; set; }
 
         public Agente(Labirinto labirinto, int id)
-        {       
+        {
+            Aptidao = 1.0;
             Id = id;
             ComidasColetadas = new List<(int, int)>();
             Coords = labirinto.Entrada;
@@ -25,22 +27,68 @@ namespace T1_IA
             Rota = new List<Caminho>();
         }
 
+        public List<Caminho> CaminhoFromToCoords((int, int) from, (int, int) to)
+        {
+            List<Caminho> caminhos = new List<Caminho>();
+            bool found = false;
+            foreach (Caminho caminho in Rota)
+            {
+                if (found)
+                {
+                    if (caminho.Origem == to)
+                    {
+                        break;
+                    }
+                    caminhos.Add(caminho);
+                }
+                if (caminho.Origem == from)
+                {
+                    caminhos.Add(caminho);
+                    found = true;
+                }
+            }
+            return caminhos;
+        }
+
         public bool Mover(TipoCaminho direcao)
         {
-            Celula origem = Labirinto.Celulas.GetValueOrDefault(Coords)!;
-            try
+            if (!IsSatisfeito())
             {
-                (int, int) destino = origem.GetDirecao(direcao).Destino;
-                Coords = destino;
-                Rota.Add(new Caminho(destino, direcao));
-                _checarCampo();
+                Celula origem = Labirinto.Celulas.GetValueOrDefault(Coords)!;
+                try
+                {
+                    (int, int) destino = origem.GetDirecao(direcao).Destino;
+                    Coords = destino;
+                    Rota.Add(new Caminho(destino, origem.Coords, direcao));
+                    _checarCampo();
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                return true;
             }
-            catch (Exception)
-            {
-                return false;
-            }
+            return false;
+        }
 
-            return true;
+        public double AtualizarAptidao()
+        {
+            double coleta = 1.0 - (double) ComidasColetadas.Count / Labirinto.NumComidas;
+
+            Aptidao = coleta;
+            return coleta;
+        }
+
+        public bool IsSatisfeito()
+        {
+            return ComidasColetadas.Count == Labirinto.NumComidas;
+        }
+
+        public void RecalcularComida()
+        {
+            ComidasColetadas.Clear();
+            IEnumerable<(int, int)> coleta = Rota.Where(x => Labirinto.Celulas.GetValueOrDefault(x.Destino)!.IsComida()).Select(x => x.Destino).Distinct();
+            ComidasColetadas.AddRange(coleta);
         }
 
         private void _checarCampo()

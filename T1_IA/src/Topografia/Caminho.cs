@@ -9,10 +9,12 @@ namespace T1_IA
     internal class Caminho
     {
         public TipoCaminho Direcao { get; }
+        public (int, int) Origem { get; }
         public (int, int) Destino { get; }
 
-        public Caminho((int, int) destino, TipoCaminho direcao)
+        public Caminho((int, int) destino, (int, int) origem, TipoCaminho direcao)
         {
+            Origem = origem;
             Destino = destino;
             Direcao = direcao;
         }

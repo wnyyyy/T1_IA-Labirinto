@@ -7,8 +7,9 @@
             Labirinto labirinto = new Labirinto("labirinto1.txt");
 
             int coefTamanhoPopulacao = 10;
-            int chanceMutacao = 50;
-            BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, chanceMutacao);
+            int chanceMutacao = 50; // 0 ~ 100
+            int elitismo = 10; // 0 ~ 100
+            BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, chanceMutacao, elitismo);
         }
     }
 }

@@ -13,11 +13,13 @@ namespace T1_IA
         public int Dimensao { get; }
         public (int, int) Entrada { get; private set; }
         public int NumComidas { get; private set; }
+        public int NumParedes { get; private set; }
         public string? Arquivo { get; }
 
         public Labirinto(string arquivo)
         {
             NumComidas = 0;
+            NumParedes = 0;
             Celulas = new Dictionary<(int, int), Celula>();
             Arquivo = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\" + arquivo;
 
@@ -72,9 +74,11 @@ namespace T1_IA
                         throw new LabirintoTabelaCampoInvalido();
                     }
                     TipoCelula tipo = (TipoCelula)charTipo;
-                    if (tipo == TipoCelula.Comida)
-                        NumComidas += 1;
-                    if (tipo == TipoCelula.Entrada)
+                    if (tipo == TipoCelula.Parede)
+                        NumParedes++;
+                    else if (tipo == TipoCelula.Comida)
+                        NumComidas++;
+                    else if (tipo == TipoCelula.Entrada)
                     {
                         if (hasEntrada)
                             throw new LabirintoTabelaMultiplasEntradas();
@@ -102,7 +106,7 @@ namespace T1_IA
                         if (destino.IsValido())
                         {
                             if (!caminho.IsDiagonal() || _diagonalValida(celula.Coords, destino.Coords))
-                                celula.AddCaminho(destino.Coords, caminho.Direcao);
+                                celula.AddCaminho(destino.Coords, celula.Coords, caminho.Direcao);
                         }
                     }                                              
                     else
@@ -121,23 +125,23 @@ namespace T1_IA
             int y = coords.Item2;
 
             if (_vizinhoValido(Dimensao,x, y - 1))
-                ret.Add(new Caminho((x, y - 1), TipoCaminho.Oeste));
+                ret.Add(new Caminho((x, y - 1), coords, TipoCaminho.Oeste));
             if (_vizinhoValido(Dimensao,x, y + 1))
-                ret.Add(new Caminho((x, y + 1), TipoCaminho.Leste));
+                ret.Add(new Caminho((x, y + 1), coords, TipoCaminho.Leste));
 
             if (_vizinhoValido(Dimensao, x + 1, y - 1))
-                ret.Add(new Caminho((x + 1, y - 1), TipoCaminho.Sudoeste));
+                ret.Add(new Caminho((x + 1, y - 1), coords, TipoCaminho.Sudoeste));
             if (_vizinhoValido(Dimensao, x + 1, y))
-                ret.Add(new Caminho((x + 1, y), TipoCaminho.Sul));
+                ret.Add(new Caminho((x + 1, y), coords, TipoCaminho.Sul));
             if (_vizinhoValido(Dimensao,x + 1, y + 1))
-                ret.Add(new Caminho((x + 1, y + 1), TipoCaminho.Sudeste));
+                ret.Add(new Caminho((x + 1, y + 1), coords, TipoCaminho.Sudeste));
 
             if (_vizinhoValido(Dimensao, x - 1, y - 1))
-                ret.Add(new Caminho((x - 1, y - 1), TipoCaminho.Noroeste));
+                ret.Add(new Caminho((x - 1, y - 1), coords, TipoCaminho.Noroeste));
             if (_vizinhoValido(Dimensao,x - 1, y))
-                ret.Add(new Caminho((x - 1, y), TipoCaminho.Norte));
+                ret.Add(new Caminho((x - 1, y), coords, TipoCaminho.Norte));
             if (_vizinhoValido(Dimensao,x - 1, y + 1))
-                ret.Add(new Caminho((x - 1, y + 1), TipoCaminho.Nordeste));
+                ret.Add(new Caminho((x - 1, y + 1), coords, TipoCaminho.Nordeste));
 
             return ret;
         }
