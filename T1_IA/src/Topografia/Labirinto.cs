@@ -16,52 +16,91 @@ namespace T1_IA
         public Labirinto(string arquivo)
         {
             Celulas = new Dictionary<(int, int), Celula>();
-            string _file = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\" + arquivo;
-            if (File.Exists(_file))
+            Arquivo = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\" + arquivo;
+
+            string[] linhas;
+            try
             {
-                Arquivo = _file;
-                string[] linhas = File.ReadAllLines(Arquivo);
-                Dimensao = Int32.Parse(linhas[0]);
-                this._construir(linhas.Skip(1).ToArray());
+                linhas = File.ReadAllLines(Arquivo);
             }
+            catch (Exception)
+            {
+                throw new LabirintoArquivoNaoEncontrado();
+            }
+            
+            try
+            {
+                Dimensao = Int32.Parse(linhas[0]);
+            }
+            catch (Exception)
+            {
+                throw new LabirintoDimensaoInvalida();
+            }
+                
+            this._construir(linhas.Skip(1).ToArray());
         }
 
         private void _construir(string[] linhas)
         {
             char[][] tabela = new char[Dimensao][];
-            for (int i = 0; i < linhas.Length; i++)
+            try
             {
-                tabela[i] = linhas[i].Replace(" ", string.Empty).ToCharArray();
+                for (int i = 0; i < Dimensao; i++)
+                {
+                    tabela[i] = linhas[i].Replace(" ", string.Empty).ToCharArray();
+                    if (tabela[i].Length != Dimensao)
+                        throw new LabirintoTabelaFormatoInvalido();
+                }
             }
+            catch (IndexOutOfRangeException)
+            {
+                throw new LabirintoTabelaFormatoInvalido();
+            }
+
+            bool hasComida = false;
+            bool hasEntrada = false;
 
             for (int i = 0; i < Dimensao; i++)
             {
                 for (int j = 0; j < Dimensao; j++)
                 {
-                    Celula? celula;
-                    if (!Celulas.TryGetValue((i, j), out celula))
+                    char charTipo = Char.ToUpper(tabela[i][j]);
+                    if (!Enum.IsDefined(typeof(TipoCelula), (int)charTipo))
                     {
-                        celula = new Celula((i, j), (TipoCelula) tabela[i][j]);
-                        Celulas.Add(celula.Coords, celula);                        
+                        throw new LabirintoTabelaCampoInvalido();
                     }
+                    TipoCelula tipo = (TipoCelula)charTipo;
+                    if (tipo == TipoCelula.Comida)
+                        hasComida = true;
+                    if (tipo == TipoCelula.Entrada)
+                        hasEntrada = true;
 
-                    foreach (Caminho vizinho in _getCamposVizinhos(celula.Coords))
+                    Celula celula = new Celula((i, j), tipo);
+                    Celulas.Add(celula.Coords, celula);
+                }
+            }
+
+            if (!hasComida)
+                throw new LabirintoTabelaSemComida();
+            if (!hasEntrada)
+                throw new LabirintoTabelaSemEntrada();
+
+            foreach (Celula celula in Celulas.Select(x => x.Value).Where(x => x.IsValido()))
+            {
+                foreach (Caminho caminho in _getCamposVizinhos(celula.Coords))
+                {
+                    Celula? destino = Celulas.GetValueOrDefault(caminho.Destino);
+                    if (destino is not null)
                     {
-                        Celula? destino;
-                        if (!Celulas.TryGetValue(vizinho.Destino, out destino))
+                        if (destino.IsValido())
                         {
-                            destino = new Celula(vizinho.Destino, (TipoCelula)tabela[vizinho.Destino.Item1][vizinho.Destino.Item2]);
-                            Celulas.Add(destino.Coords, destino);
+                            if (!caminho.IsDiagonal() || _diagonalValida(celula.Coords, destino.Coords))
+                                celula.AddCaminho(destino.Coords, caminho.Direcao);
                         }
-                        if (vizinho.IsDiagonal())
-                        {
-                            if (!_diagonalBloqueada(celula.Coords, destino.Coords))
-                                celula.AddCaminho(destino.Coords, vizinho.Direcao);
-                        }
-                        else
-                        {
-                            celula.AddCaminho(destino.Coords, vizinho.Direcao);
-                        }
+                    }                                              
+                    else
+                    {
+                        throw new LabirintoTabelaFormatoInvalido();
                     }
                 }
             }
@@ -74,23 +113,23 @@ namespace T1_IA
             int x = coords.Item1;
             int y = coords.Item2;
 
-            if (_vizinhoValido(Dimensao, x, y - 1))
-                ret.Add(new Caminho((x, y - 1), TipoCaminho.Norte));
-            if (_vizinhoValido(Dimensao, x, y + 1))
-                ret.Add(new Caminho((x, y + 1), TipoCaminho.Sul));
+            if (_vizinhoValido(Dimensao,x, y - 1))
+                ret.Add(new Caminho((x, y - 1), TipoCaminho.Oeste));
+            if (_vizinhoValido(Dimensao,x, y + 1))
+                ret.Add(new Caminho((x, y + 1), TipoCaminho.Leste));
 
             if (_vizinhoValido(Dimensao, x + 1, y - 1))
-                ret.Add(new Caminho((x + 1, y - 1), TipoCaminho.Nordeste));
+                ret.Add(new Caminho((x + 1, y - 1), TipoCaminho.Sudoeste));
             if (_vizinhoValido(Dimensao, x + 1, y))
-                ret.Add(new Caminho((x + 1, y), TipoCaminho.Leste));
-            if (_vizinhoValido(Dimensao, x + 1, y + 1))
+                ret.Add(new Caminho((x + 1, y), TipoCaminho.Sul));
+            if (_vizinhoValido(Dimensao,x + 1, y + 1))
                 ret.Add(new Caminho((x + 1, y + 1), TipoCaminho.Sudeste));
 
             if (_vizinhoValido(Dimensao, x - 1, y - 1))
                 ret.Add(new Caminho((x - 1, y - 1), TipoCaminho.Noroeste));
-            if (_vizinhoValido(Dimensao, x - 1, y))
-                ret.Add(new Caminho((x - 1, y), TipoCaminho.Oeste));
-            if (_vizinhoValido(Dimensao, x - 1, y + 1))
+            if (_vizinhoValido(Dimensao,x - 1, y))
+                ret.Add(new Caminho((x - 1, y), TipoCaminho.Norte));
+            if (_vizinhoValido(Dimensao,x - 1, y + 1))
                 ret.Add(new Caminho((x - 1, y + 1), TipoCaminho.Nordeste));
 
             return ret;
@@ -103,7 +142,7 @@ namespace T1_IA
             return true;
         }
 
-        private bool _diagonalBloqueada((int, int) origem, (int,int) destino)
+        private bool _diagonalValida((int, int) origem, (int,int) destino)
         {
             List<Caminho> origVizinhos = _getCamposVizinhos(origem);
             List<Caminho> destVizinhos = _getCamposVizinhos(destino);
@@ -112,7 +151,7 @@ namespace T1_IA
 
             List<Caminho> aux = origVizinhos.Where(x => common.Any(y => y.Equals(x.Destino))).ToList();
 
-            return aux.All(x => !Celulas[x.Destino].IsValido());
+            return aux.Any(x => Celulas[x.Destino].IsValido());
         }
     }
 }
