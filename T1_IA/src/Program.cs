@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Labirinto("labirinto1.txt");
+            Labirinto labirinto = new Labirinto("labirinto1.txt");
         }
     }
 }

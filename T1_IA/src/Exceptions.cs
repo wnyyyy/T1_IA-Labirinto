@@ -31,8 +31,18 @@ namespace T1_IA
         public LabirintoTabelaSemEntrada() { }
     }
 
+    public class LabirintoTabelaMultiplasEntradas : Exception
+    {
+        public LabirintoTabelaMultiplasEntradas() { }
+    }
+
     public class LabirintoTabelaSemComida : Exception
     {
         public LabirintoTabelaSemComida() { }
+    }
+
+    public class AgenteMovimentoImpossivel : Exception
+    {
+        public AgenteMovimentoImpossivel() { }
     }
 }

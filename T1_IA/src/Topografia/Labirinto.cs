@@ -11,6 +11,7 @@ namespace T1_IA
     {
         public Dictionary<(int, int), Celula> Celulas { get;  }
         public int Dimensao { get; }
+        public (int, int) Entrada { get; private set; }
         public string? Arquivo { get; }
 
         public Labirinto(string arquivo)
@@ -73,7 +74,12 @@ namespace T1_IA
                     if (tipo == TipoCelula.Comida)
                         hasComida = true;
                     if (tipo == TipoCelula.Entrada)
+                    {
+                        if (hasEntrada)
+                            throw new LabirintoTabelaMultiplasEntradas();
                         hasEntrada = true;
+                        Entrada = (i, j);
+                    }
 
                     Celula celula = new Celula((i, j), tipo);
                     Celulas.Add(celula.Coords, celula);
