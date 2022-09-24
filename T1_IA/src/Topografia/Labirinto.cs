@@ -12,10 +12,12 @@ namespace T1_IA
         public Dictionary<(int, int), Celula> Celulas { get;  }
         public int Dimensao { get; }
         public (int, int) Entrada { get; private set; }
+        public int NumComidas { get; private set; }
         public string? Arquivo { get; }
 
         public Labirinto(string arquivo)
         {
+            NumComidas = 0;
             Celulas = new Dictionary<(int, int), Celula>();
             Arquivo = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\" + arquivo;
 
@@ -58,7 +60,6 @@ namespace T1_IA
                 throw new LabirintoTabelaFormatoInvalido();
             }
 
-            bool hasComida = false;
             bool hasEntrada = false;
 
             for (int i = 0; i < Dimensao; i++)
@@ -72,7 +73,7 @@ namespace T1_IA
                     }
                     TipoCelula tipo = (TipoCelula)charTipo;
                     if (tipo == TipoCelula.Comida)
-                        hasComida = true;
+                        NumComidas += 1;
                     if (tipo == TipoCelula.Entrada)
                     {
                         if (hasEntrada)
@@ -86,7 +87,7 @@ namespace T1_IA
                 }
             }
 
-            if (!hasComida)
+            if (NumComidas == 0)
                 throw new LabirintoTabelaSemComida();
             if (!hasEntrada)
                 throw new LabirintoTabelaSemEntrada();

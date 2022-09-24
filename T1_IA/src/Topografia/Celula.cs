@@ -10,7 +10,7 @@ namespace T1_IA
     {
         public (int, int) Coords { get; }
         public List<Caminho> Caminhos { get; }
-        public TipoCelula Campo { get; private set; }
+        public TipoCelula Campo { get; }
 
         public Celula((int, int) coords, TipoCelula campo)
         {
@@ -35,16 +35,6 @@ namespace T1_IA
                 throw new AgenteMovimentoImpossivel();
 
             return caminho;
-        }
-
-        public bool ColetarComida()
-        {
-            if (Campo.Equals(TipoCelula.Comida))
-            {
-                Campo = TipoCelula.Vazio;
-                return true;
-            }
-            return false;
         }
 
         public override string ToString()

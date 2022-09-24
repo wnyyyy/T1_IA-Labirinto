@@ -5,6 +5,10 @@
         static void Main(string[] args)
         {
             Labirinto labirinto = new Labirinto("labirinto1.txt");
+
+            int coefTamanhoPopulacao = 10;
+            int chanceMutacao = 50;
+            BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, chanceMutacao);
         }
     }
 }
