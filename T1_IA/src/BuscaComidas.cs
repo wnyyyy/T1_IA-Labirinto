@@ -11,21 +11,22 @@ namespace T1_IA
         public Labirinto Labirinto { get; }
         public int LimiteMovimentos { get; }
         public int TamPopulacao { get; }
-        public int ChanceMutacao { get; }
+        public int TaxaMutacao { get; }
         public List<Agente> Populacao { get; private set; }
         public int Elitismo { get; }
+        public int Geracao { get; private set; }
         private Random _rand { get; set; }
 
-        public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int chanceMutacao, int elitismo)
+        public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int taxaMutacao, int elitismo)
         {
             _rand = new Random();
             Elitismo = elitismo;
             TamPopulacao = 300 * coefTamanhoPopulacao / 100;
-            ChanceMutacao = chanceMutacao;
+            TaxaMutacao = taxaMutacao;
             Labirinto = labirinto;
             LimiteMovimentos = Labirinto.Dimensao * Labirinto.Dimensao - labirinto.NumParedes;
             Populacao = _fillPopulacao();
-            NovaGeracao();
+            Geracao = 1;
         }
 
         public void NovaGeracao()
@@ -34,11 +35,12 @@ namespace T1_IA
             _aplicarElitismo(novaPopulacao);
             _realizarCrossover(novaPopulacao);
             Populacao = novaPopulacao;
+            Geracao++;
         }
 
         private Agente _gerarCromossomo(int id)
         {
-            Agente agente = new Agente(Labirinto, id);
+            Agente agente = new Agente(Labirinto, id, Geracao);
             while (agente.Rota.Count < LimiteMovimentos)
             {
                 List<TipoCaminho> direcoes = Labirinto.Celulas.GetValueOrDefault(agente.Coords)!.Caminhos.Select(x => x.Direcao).ToList();
@@ -89,7 +91,7 @@ namespace T1_IA
                 .Any(y => y.Destino == x.Destino))
                 .Select(x => x.Destino).ToList();
 
-            Agente filho = new Agente(Labirinto, id);
+            Agente filho = new Agente(Labirinto, id, Geracao);
             (int, int) curr = filho.Coords;
 
             if (pontosComum.Count > 0)
@@ -125,6 +127,22 @@ namespace T1_IA
                 return a1;
             }
             return filho;
+        }
+
+        private void _aplicarMutacao(Agente agente)
+        {
+            int distMax = TaxaMutacao * (agente.Rota.Count - 1) / 100;
+            int distMin = distMax / 3;
+            int dist = _rand.Next(distMin, distMax+1);
+            int indexPivot = _rand.Next(0, agente.Rota.Count - 1);
+            (int, int) pivot = agente.Rota[indexPivot].Destino;
+            (int, int) goal = agente.Rota[Math.Min(agente.Rota.Count, indexPivot)].Destino;
+
+            while (true)
+            {
+
+            }
+
         }
 
         private Agente _selecionarPopulacao(List<int> aptidaoAcumulada)

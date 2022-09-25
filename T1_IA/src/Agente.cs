@@ -15,8 +15,9 @@ namespace T1_IA
         public Labirinto Labirinto { get; }
         public List<(int,int)> ComidasColetadas { get; private set; }
         public double Aptidao { get; set; }
+        public int Geracao { get; }
 
-        public Agente(Labirinto labirinto, int id)
+        public Agente(Labirinto labirinto, int id, int geracao)
         {
             Aptidao = 1.0;
             Id = id;
@@ -25,6 +26,7 @@ namespace T1_IA
             Origem = labirinto.Entrada;
             Labirinto = labirinto;
             Rota = new List<Caminho>();
+            Geracao = geracao;
         }
 
         public List<Caminho> CaminhoFromToCoords((int, int) from, (int, int) to)
@@ -105,7 +107,7 @@ namespace T1_IA
 
         public override string ToString()
         {
-            return "Agente " + Id + " - " + ComidasColetadas.Count() + " comidas";
+            return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas";
         }
     }
 }
