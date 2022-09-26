@@ -10,28 +10,18 @@ namespace T1_IA
     internal class BuscaComidas
     {
         public Labirinto Labirinto { get; }
-        public int LimiteMovimentos { get; }
-        public int TamPopulacao { get; }
-        public int TaxaMutacao { get; }
         public List<Agente> Populacao { get; private set; }
-        public int Elitismo { get; }
         public int Geracao { get; private set; }
+        public Opcoes Opcoes { get; }
         private Random _rand { get; set; }
         private BuscaRota _buscaRota { get; }
-        private int _ceiling { get; }
-        private int _movePts { get; }
 
         public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int taxaMutacao, int elitismo)
-        {            
+        {
+            Opcoes = new Opcoes(coefTamanhoPopulacao, taxaMutacao, elitismo, labirinto);
             _rand = new Random();
-            Elitismo = elitismo;
-            TamPopulacao = 300 * coefTamanhoPopulacao / 100;
-            TaxaMutacao = taxaMutacao;
             Labirinto = labirinto;
-            LimiteMovimentos = Labirinto.Dimensao * Labirinto.Dimensao - labirinto.NumParedes;
             Geracao = 1;
-            _movePts = LimiteMovimentos + LimiteMovimentos * 10;
-            _ceiling = Labirinto.NumComidas * _movePts + Labirinto.NumComidas + _movePts;
             _buscaRota = new BuscaRota(labirinto);
             Populacao = _fillPopulacao();
         }
@@ -49,7 +39,7 @@ namespace T1_IA
         private Agente _gerarCromossomo(int id)
         {
             Agente agente = new Agente(Labirinto, id, Geracao);
-            while (agente.Rota.Count < LimiteMovimentos)
+            while (agente.Rota.Count < Opcoes.LimiteMovimentos)
             {
                 List<TipoCaminho> direcoes = Labirinto.Celulas.GetValueOrDefault(agente.Coords)!.Caminhos.Select(x => x.Direcao).ToList();
                 TipoCaminho direcao = direcoes[_rand.Next(direcoes.Count)];
@@ -64,7 +54,7 @@ namespace T1_IA
         private List<Agente> _fillPopulacao()
         {
             List<Agente> populacao = new List<Agente>();
-            for (int i = 1; i < TamPopulacao+1; i++)
+            for (int i = 1; i < Opcoes.TamPopulacao+1; i++)
             {
                 populacao.Add(_gerarCromossomo(i));
             }
@@ -74,7 +64,7 @@ namespace T1_IA
 
         private void _aplicarElitismo(List<Agente> novaPopulacao)
         {            
-            novaPopulacao.AddRange(Populacao.Take(TamPopulacao * Elitismo / 100));
+            novaPopulacao.AddRange(Populacao.Take(Opcoes.TamPopulacao * Opcoes.Elitismo / 100));
         }
 
         private void _realizarCrossover(List<Agente> novaPopulacao)
@@ -82,7 +72,7 @@ namespace T1_IA
             int id = Populacao.Select(x => x.Id).Max() + 1;
             List<Agente> best50 = Populacao.Take(Populacao.Count/2).ToList();
             List<int> aptidaoAcumulada = _getAptidaoAcumulada(best50);
-            while (novaPopulacao.Count < TamPopulacao)
+            while (novaPopulacao.Count < Opcoes.TamPopulacao)
             {
                 Agente a1 = _selecionarPopulacao(aptidaoAcumulada, best50);
                 Agente a2 = _selecionarPopulacao(aptidaoAcumulada, best50);
@@ -90,14 +80,14 @@ namespace T1_IA
                 int numMutacoes = 0;
                 for (int i = 0; i < 3; i++)
                 {
-                    if (_rand.Next(1, 101) <= TaxaMutacao)
+                    if (_rand.Next(1, 101) <= Opcoes.TaxaMutacao)
                         numMutacoes++;
                 }
                 for (int i = 0; i < numMutacoes; i++)
                 {
                     _aplicarMutacao(filho);
                 }
-                filho.Rota = filho.Rota.Take(LimiteMovimentos).ToList();
+                filho.Rota = filho.Rota.Take(Opcoes.LimiteMovimentos).ToList();
                 filho.RecalcularComida();
                 _atualizarAptidao(filho);
                 //Console.WriteLine(Util.ValidaCaminho(filho.Rota));
@@ -129,9 +119,9 @@ namespace T1_IA
 
         private void _aplicarMutacao(Agente agente)
         {
-            int dist = Labirinto.Dimensao * TaxaMutacao / 50;
-            int chanceTam = 50 * TaxaMutacao / 25;
-            int chanceMut = 25 * TaxaMutacao / 25;
+            int dist = Labirinto.Dimensao * Opcoes.TaxaMutacao / 50;
+            int chanceTam = 50 * Opcoes.TaxaMutacao / 25;
+            int chanceMut = 25 * Opcoes.TaxaMutacao / 25;
 
             for (int i = 0; i < 4; i++)
             {
@@ -233,11 +223,11 @@ namespace T1_IA
         private void _atualizarAptidao(Agente agente)
         {
             int qtdRepetidos = (agente.Rota.Count - agente.Rota.GroupBy(x => x.Destino).Count());
-            int ptsColeta = agente.ComidasColetadas.Count * (_movePts + 1);
-            int ptsUnicidade = (LimiteMovimentos - qtdRepetidos) * 10;
-            int ptsTamanho = LimiteMovimentos - agente.Rota.Count;
+            int ptsColeta = agente.ComidasColetadas.Count * (Opcoes.MovePts + 1);
+            int ptsUnicidade = (Opcoes.LimiteMovimentos - qtdRepetidos) * 10;
+            int ptsTamanho = Opcoes.LimiteMovimentos - agente.Rota.Count;
             int ptsTotal = ptsColeta + ptsTamanho + ptsUnicidade;
-            agente.Aptidao = 1.0 - ((double)ptsTotal / _ceiling);
+            agente.Aptidao = 1.0 - ((double)ptsTotal / Opcoes.CeilingPts);
 
             //agente.Aptidao = ((1 - (double)agente.ComidasColetadas.Count / Labirinto.NumComidas) + (double)qtdRepetidos / LimiteMovimentos) / 2;
         }
