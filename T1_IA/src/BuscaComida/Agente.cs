@@ -76,6 +76,18 @@ namespace T1_IA
             return ComidasColetadas.Count == Labirinto.NumComidas;
         }
 
+        public void RecalcularAptidao(Opcoes opcoes)
+        {
+            int qtdRepetidos = (Rota.Count - Rota.GroupBy(x => x.Destino).Count());
+            int ptsColeta = ComidasColetadas.Count * (opcoes.MovePts + 1);
+            int ptsUnicidade = (opcoes.LimiteMovimentos - qtdRepetidos) * 10;
+            int ptsTamanho = opcoes.LimiteMovimentos - Rota.Count;
+            int ptsTotal = ptsColeta + ptsTamanho + ptsUnicidade;
+            Aptidao = 1.0 - ((double)ptsTotal / opcoes.CeilingPts);
+
+            //agente.Aptidao = ((1 - (double)agente.ComidasColetadas.Count / Labirinto.NumComidas) + (double)qtdRepetidos / LimiteMovimentos) / 2;
+        }
+
         public void RecalcularComida()
         {
             ComidasColetadas.Clear();

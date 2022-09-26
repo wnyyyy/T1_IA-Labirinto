@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using T1_IA.AStar;
 
 namespace T1_IA
@@ -10,35 +11,44 @@ namespace T1_IA
     internal class BuscaComidas
     {
         public Labirinto Labirinto { get; }
-        public List<Agente> Populacao { get; private set; }
-        public int Geracao { get; private set; }
+        public int NumGeracoes => Geracoes.Count;
+        public List<Agente> PopulacaoAtual => Geracoes.Last().Populacao;
+        public List<Geracao> Geracoes { get; private set; }
         public Opcoes Opcoes { get; }
         private Random _rand { get; set; }
         private BuscaRota _buscaRota { get; }
+        private Stopwatch _stopwatch = new();
 
         public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int taxaMutacao, int elitismo)
         {
+            Geracoes = new List<Geracao>();
             Opcoes = new Opcoes(coefTamanhoPopulacao, taxaMutacao, elitismo, labirinto);
             _rand = new Random();
             Labirinto = labirinto;
-            Geracao = 1;
             _buscaRota = new BuscaRota(labirinto);
-            Populacao = _fillPopulacao();
+            _stopwatch.Start();
+            List<Agente> inicial = _fillPopulacao();
+            _stopwatch.Stop();
+            Geracoes.Add(new Geracao(inicial, 1, _stopwatch.ElapsedMilliseconds));
         }
 
         public void NovaGeracao()
         {
+            _stopwatch.Reset();
+            _stopwatch.Start();
             List<Agente> novaPopulacao = new List<Agente>();
-            Populacao.Sort((x, y) => x.Aptidao.CompareTo(y.Aptidao));
-            _aplicarElitismo(novaPopulacao);
-            _realizarCrossover(novaPopulacao);
-            Populacao = novaPopulacao;
-            Geracao++;
+            List<Agente> oldPopulacao = PopulacaoAtual;
+            _aplicarElitismo(novaPopulacao, oldPopulacao);
+            _realizarCrossover(novaPopulacao, oldPopulacao);
+            _stopwatch.Stop();
+            novaPopulacao.Sort((x, y) => x.Aptidao.CompareTo(y.Aptidao));
+            Geracao novaGeracao = new Geracao(novaPopulacao, NumGeracoes + 1, _stopwatch.ElapsedMilliseconds);
+            Geracoes.Add(novaGeracao);
         }
 
         private Agente _gerarCromossomo(int id)
         {
-            Agente agente = new Agente(Labirinto, id, Geracao);
+            Agente agente = new Agente(Labirinto, id, 1);
             while (agente.Rota.Count < Opcoes.LimiteMovimentos)
             {
                 List<TipoCaminho> direcoes = Labirinto.Celulas.GetValueOrDefault(agente.Coords)!.Caminhos.Select(x => x.Direcao).ToList();
@@ -47,7 +57,7 @@ namespace T1_IA
                     break;
             }
 
-            _atualizarAptidao(agente);
+            agente.RecalcularAptidao(Opcoes);
             return agente;
         }
 
@@ -59,18 +69,19 @@ namespace T1_IA
                 populacao.Add(_gerarCromossomo(i));
             }
 
+            populacao.Sort((x, y) => x.Aptidao.CompareTo(y.Aptidao));
             return populacao;
         }
 
-        private void _aplicarElitismo(List<Agente> novaPopulacao)
-        {            
-            novaPopulacao.AddRange(Populacao.Take(Opcoes.TamPopulacao * Opcoes.Elitismo / 100));
+        private void _aplicarElitismo(List<Agente> novaPopulacao, List<Agente> oldPopulacao)
+        {
+            novaPopulacao.AddRange(oldPopulacao.Take(Opcoes.TamPopulacao * Opcoes.Elitismo / 100));
         }
 
-        private void _realizarCrossover(List<Agente> novaPopulacao)
+        private void _realizarCrossover(List<Agente> novaPopulacao, List<Agente> oldPopulacao)
         {
-            int id = Populacao.Select(x => x.Id).Max() + 1;
-            List<Agente> best50 = Populacao.Take(Populacao.Count/2).ToList();
+            int id = oldPopulacao.Select(x => x.Id).Max() + 1;
+            List<Agente> best50 = oldPopulacao.Take(oldPopulacao.Count/2).ToList();
             List<int> aptidaoAcumulada = _getAptidaoAcumulada(best50);
             while (novaPopulacao.Count < Opcoes.TamPopulacao)
             {
@@ -89,7 +100,7 @@ namespace T1_IA
                 }
                 filho.Rota = filho.Rota.Take(Opcoes.LimiteMovimentos).ToList();
                 filho.RecalcularComida();
-                _atualizarAptidao(filho);
+                filho.RecalcularAptidao(Opcoes);
                 //Console.WriteLine(Util.ValidaCaminho(filho.Rota));
                 novaPopulacao.Add(filho);
                 id++;
@@ -98,7 +109,7 @@ namespace T1_IA
 
         private Agente _criarFilho(Agente a1, Agente a2, int id)
         {        
-            Agente filho = new Agente(Labirinto, id, Geracao);
+            Agente filho = new Agente(Labirinto, id, NumGeracoes);
             int size = Math.Min(a1.Rota.Count, a2.Rota.Count);
 
             List<Caminho> rotaInicial = a1.Rota.Take(size/2).ToList();
@@ -218,18 +229,6 @@ namespace T1_IA
             List<Caminho> novaRota = inicio.Concat(rota).Concat(toGoal).Concat(fim).ToList();
             //Console.WriteLine(Util.ValidaCaminho(novaRota));
             agente.Rota = novaRota;
-        }
-
-        private void _atualizarAptidao(Agente agente)
-        {
-            int qtdRepetidos = (agente.Rota.Count - agente.Rota.GroupBy(x => x.Destino).Count());
-            int ptsColeta = agente.ComidasColetadas.Count * (Opcoes.MovePts + 1);
-            int ptsUnicidade = (Opcoes.LimiteMovimentos - qtdRepetidos) * 10;
-            int ptsTamanho = Opcoes.LimiteMovimentos - agente.Rota.Count;
-            int ptsTotal = ptsColeta + ptsTamanho + ptsUnicidade;
-            agente.Aptidao = 1.0 - ((double)ptsTotal / Opcoes.CeilingPts);
-
-            //agente.Aptidao = ((1 - (double)agente.ComidasColetadas.Count / Labirinto.NumComidas) + (double)qtdRepetidos / LimiteMovimentos) / 2;
         }
 
         private Agente _selecionarPopulacao(List<int> aptidaoAcumulada, List<Agente> populacao)
