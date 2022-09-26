@@ -8,8 +8,8 @@ namespace T1_IA
 {
     internal class Agente
     {
-        public (int, int) Coords { get; private set; }
-        public (int, int) Origem { get; }
+        public (int, int) Coords => Rota.Count > 0 ? Rota.Last().Destino : Entrada;
+        public (int, int) Entrada { get; }
         public int Id { get; }
         public List<Caminho> Rota { get; set; }
         public Labirinto Labirinto { get; }
@@ -22,8 +22,7 @@ namespace T1_IA
             Aptidao = 1.0;
             Id = id;
             ComidasColetadas = new List<(int, int)>();
-            Coords = labirinto.Entrada;
-            Origem = labirinto.Entrada;
+            Entrada = labirinto.Entrada;
             Labirinto = labirinto;
             Rota = new List<Caminho>();
             Geracao = geracao;
@@ -60,7 +59,6 @@ namespace T1_IA
                 try
                 {
                     (int, int) destino = origem.GetDirecao(direcao).Destino;
-                    Coords = destino;
                     Rota.Add(new Caminho(destino, origem.Coords, direcao));
                     _checarCampo();
                 }
@@ -99,8 +97,8 @@ namespace T1_IA
 
         public override string ToString()
         {
-            return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas | apt: "
-                + string.Format("{0:0.0000}", Aptidao)+" | tam: "+Rota.Count + " | rept: " + Rota.GroupBy(x => x.Destino).Count();
+            return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas coletadas | aptidão: "
+                + string.Format("{0:0.000}", Aptidao)+" | Tamanho da rota: "+Rota.Count + " | Repetições na rota: " + (Rota.Count - Rota.GroupBy(x => x.Destino).Count());
         }
     }
 }

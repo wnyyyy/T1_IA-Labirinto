@@ -45,11 +45,16 @@ namespace T1_IA
 
         public static bool ValidaCaminho(List<Caminho> rota)
         {
+            (int, int)? oldDestino = null;
             foreach (Caminho caminho in rota)
             {
                 TipoCaminho? direcao = GetDirecaoFromCoords(caminho.Origem, caminho.Destino);
                 if (direcao! != caminho.Direcao)
                     return false;
+                if (oldDestino is not null && oldDestino != caminho.Origem)
+                    return false;
+                oldDestino = caminho.Destino;
+
             }
             return true;
         }
