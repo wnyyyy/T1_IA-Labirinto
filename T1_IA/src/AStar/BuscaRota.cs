@@ -4,23 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace T1_IA
+namespace T1_IA.AStar
 {
     internal class BuscaRota
     {
         public Labirinto Labirinto { get; set; }
-        public Dictionary<(int, int), Nodo> Nodos { get; set; }
 
         public BuscaRota(Labirinto labirinto)
         {
             Labirinto = labirinto;
-            Nodos = _construir();
         }
 
-        public List<(int, int)> Buscar((int, int) from, (int, int) to)
+        public List<Caminho> Buscar((int, int) from, (int, int) to)
         {
-            Nodo inicio = Nodos.GetValueOrDefault(from)!;
-            Nodo fim = Nodos.GetValueOrDefault(to)!;
+            Nodo inicio = new Nodo(from.Item1, from.Item2);
+            Nodo fim = new Nodo(to.Item1, to.Item2);
 
             inicio.SetDistancia(fim.X, fim.Y);
 
@@ -33,7 +31,7 @@ namespace T1_IA
                 Nodo atual = ativos.OrderBy(x => x.CustoDistancia).First();
                 if (atual.X == fim.X && atual.Y == fim.Y)
                 {
-                    return _final(ativos);
+                    return _final(atual);
                 }
 
                 visitados.Add(atual);
@@ -45,9 +43,9 @@ namespace T1_IA
                     if (visitados.Contains(nodo))
                         continue;
 
-                    if (ativos.Contains(nodo))
+                    Nodo? existente = ativos.Where(x => x.Equals(nodo)).FirstOrDefault();
+                    if (existente is not null)
                     {
-                        Nodo existente = ativos.First(n => n.X == nodo.X && n.Y == nodo.Y);
                         if (existente.CustoDistancia > nodo.CustoDistancia)
                         {
                             ativos.Remove(existente);
@@ -61,12 +59,23 @@ namespace T1_IA
                 }
             }
 
-            return _final(ativos);
+            return new List<Caminho>();
         }
 
-        private List<(int, int)> _final(List<Nodo> ativos)
+        private List<Caminho> _final(Nodo fim)
         {
-            List<(int, int)> ret = new List<(int, int)> ();
+            List<Caminho> ret = new List<Caminho>();
+            Nodo curr = fim;
+            while (curr.Pai != null)
+            {
+                (int, int) to = (curr.X, curr.Y);
+                (int, int) from = (curr.Pai.X, curr.Pai.Y);
+                TipoCaminho? direcao = Util.GetDirecaoFromCoords(from, to);
+                Caminho caminho = new Caminho(to, from, (TipoCaminho) direcao!);
+                ret.Add(caminho);
+                curr = curr.Pai;
+            }
+            ret.Reverse();
 
             return ret;
         }
@@ -77,7 +86,7 @@ namespace T1_IA
             Celula celCurr = Labirinto.Celulas.GetValueOrDefault((curr.X, curr.Y))!;
             foreach (Caminho possivel in celCurr.Caminhos)
             {
-                Nodo vizinho = Nodos.GetValueOrDefault(possivel.Destino)!;
+                Nodo vizinho = new Nodo(possivel.Destino.Item1, possivel.Destino.Item2);
                 vizinho.Custo = curr.Custo + 1;
                 vizinho.Pai = curr;
                 vizinho.SetDistancia(target.X, target.Y);
@@ -85,18 +94,6 @@ namespace T1_IA
             }
 
             return lst;
-        }
-
-        private Dictionary<(int, int), Nodo> _construir()
-        {
-            Dictionary<(int, int), Nodo> ret = new Dictionary<(int, int), Nodo>();
-            IEnumerable<(int, int)> validos = Labirinto.Celulas.Where(x => x.Value.IsValido()).Select(x => x.Key);
-            foreach ((int, int) c in validos)
-            {
-                ret.Add((c.Item1, c.Item2), new Nodo(c.Item1, c.Item2));
-            }
-
-            return ret;
         }
     }
 }

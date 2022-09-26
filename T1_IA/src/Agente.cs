@@ -73,14 +73,6 @@ namespace T1_IA
             return false;
         }
 
-        public double AtualizarAptidao()
-        {
-            double coleta = 1.0 - (double) ComidasColetadas.Count / Labirinto.NumComidas;
-
-            Aptidao = coleta;
-            return coleta;
-        }
-
         public bool IsSatisfeito()
         {
             return ComidasColetadas.Count == Labirinto.NumComidas;
@@ -107,7 +99,8 @@ namespace T1_IA
 
         public override string ToString()
         {
-            return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas";
+            return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas | apt: "
+                + string.Format("{0:0.0000}", Aptidao)+" | tam: "+Rota.Count + " | rept: " + Rota.GroupBy(x => x.Destino).Count();
         }
     }
 }

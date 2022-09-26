@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace T1_IA
+namespace T1_IA.AStar
 {
     internal class Nodo
     {
@@ -36,5 +36,20 @@ namespace T1_IA
             return "(" + X + ", " + Y + ") - Custo: " + CustoDistancia;
         }
 
+        public override bool Equals(object? obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+                return base.Equals(obj);
+            else
+            {
+                Nodo target = (obj as Nodo)!;
+                return this.X == target.X && this.Y == target.Y;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
