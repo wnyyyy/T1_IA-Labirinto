@@ -130,7 +130,7 @@ namespace T1_IA
         private void _aplicarMutacao(Agente agente)
         {
             int dist = Labirinto.Dimensao * TaxaMutacao / 50;
-            int chanceTam = 100 * TaxaMutacao / 25;
+            int chanceTam = 50 * TaxaMutacao / 25;
             int chanceMut = 25 * TaxaMutacao / 25;
 
             for (int i = 0; i < 4; i++)
@@ -141,11 +141,11 @@ namespace T1_IA
                     _reduzTamanho(agente, dist);
                     if (rand <= chanceMut)
                         _explorar(agente, dist);
-                }         
+                }
             }
         }
 
-        private void _reduzTamanho(Agente agente, int dist)
+            private void _reduzTamanho(Agente agente, int dist)
         {   
             int indexPivot = _rand.Next(1, agente.Rota.Count);
             int indexGoal = agente.Rota.Count - 1;

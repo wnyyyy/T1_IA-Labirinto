@@ -31,8 +31,18 @@ namespace T1_IA
             Thread th6 = new Thread(() => _thread(labirinto, elitismo: 20, coefTamanhoPopulacao: 5, taxaMutacao: 25, loops, "Thread 6"));
             th3.Name = "Thread 6";
 
-            th1.Start(); th2.Start(); th3.Start(); th4.Start(); th5.Start(); th6.Start();
-            th1.Join(); th2.Join(); th3.Join(); th4.Join(); th5.Join(); th6.Join();
+            //th1.Start(); 
+            //th2.Start(); 
+            th3.Start();
+            //th4.Start(); 
+            //th5.Start(); 
+            //th6.Start();
+            //th1.Join(); 
+            //th2.Join(); 
+            th3.Join(); 
+            //th4.Join(); 
+            //th5.Join(); 
+            //th6.Join();
         }
 
         private static void _thread(Labirinto labirinto, int elitismo, int coefTamanhoPopulacao, int taxaMutacao, int loops, string name)
@@ -55,7 +65,7 @@ namespace T1_IA
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine();
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= 100; i++)
             {
                 sb.AppendLine("Execução " + i);
                 sb.AppendLine();
