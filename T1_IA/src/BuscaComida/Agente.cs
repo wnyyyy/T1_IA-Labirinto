@@ -16,6 +16,8 @@ namespace T1_IA
         public List<(int,int)> ComidasColetadas { get; private set; }
         public double Aptidao { get; set; }
         public int Geracao { get; }
+        public List<Mutacao> Mutacoes { get; }
+        public long TempoMutacoes => Mutacoes.Sum(x => x.TempoTotal);
 
         public Agente(Labirinto labirinto, int id, int geracao)
         {
@@ -26,6 +28,7 @@ namespace T1_IA
             Labirinto = labirinto;
             Rota = new List<Caminho>();
             Geracao = geracao;
+            Mutacoes = new List<Mutacao>();
         }
 
         public List<Caminho> CaminhoFromToCoords((int, int) from, (int, int) to)
@@ -94,6 +97,28 @@ namespace T1_IA
             IEnumerable<(int, int)> coleta = Rota.Where(x => Labirinto.Celulas.GetValueOrDefault(x.Destino)!.IsComida()).Select(x => x.Destino).Distinct();
             ComidasColetadas.AddRange(coleta);
         }
+
+        public void AplicarMutacao(Opcoes opcoes)
+        {
+            Random rand = new Random();            
+            int chanceTam = 50 * opcoes.TaxaMutacao / 25;
+            int chanceMut = chanceTam/2 * opcoes.TaxaMutacao / 25 * opcoes.AgressividadeMutacao/100 ;
+
+            for (int i = 0; i < 4; i++)
+            {
+                int proc = rand.Next(1, 101);
+                bool reduzir = false;
+                bool explorar = false;
+                if (proc <= chanceTam)
+                {
+                    reduzir = true;
+                    if (proc <= chanceMut)
+                        explorar = true;
+                    Mutacao mutacao = new Mutacao(reduzir, explorar, this, opcoes, Labirinto);
+                    Mutacoes.Add(mutacao);
+                }
+            }
+        }        
 
         private void _checarCampo()
         {

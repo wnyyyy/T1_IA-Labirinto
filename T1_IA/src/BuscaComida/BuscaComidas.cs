@@ -15,21 +15,22 @@ namespace T1_IA
         public List<Agente> PopulacaoAtual => Geracoes.Last().Populacao;
         public List<Geracao> Geracoes { get; private set; }
         public Opcoes Opcoes { get; }
+        public long TempoTotal => Geracoes.Sum(a => a.TempoGerada);
         private Random _rand { get; set; }
         private BuscaRota _buscaRota { get; }
         private Stopwatch _stopwatch = new();
 
-        public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int taxaMutacao, int elitismo)
+        public BuscaComidas(Labirinto labirinto, int coefTamanhoPopulacao, int taxaMutacao, int agressividadeMutacao, int elitismo)
         {
             Geracoes = new List<Geracao>();
-            Opcoes = new Opcoes(coefTamanhoPopulacao, taxaMutacao, elitismo, labirinto);
+            Opcoes = new Opcoes(coefTamanhoPopulacao, taxaMutacao, agressividadeMutacao, elitismo, labirinto);
             _rand = new Random();
             Labirinto = labirinto;
             _buscaRota = new BuscaRota(labirinto);
             _stopwatch.Start();
             List<Agente> inicial = _fillPopulacao();
             _stopwatch.Stop();
-            Geracoes.Add(new Geracao(inicial, 1, _stopwatch.ElapsedMilliseconds));
+            Geracoes.Add(new Geracao(inicial, 1, _stopwatch.ElapsedTicks));
         }
 
         public void NovaGeracao()
@@ -42,7 +43,7 @@ namespace T1_IA
             _realizarCrossover(novaPopulacao, oldPopulacao);
             _stopwatch.Stop();
             novaPopulacao.Sort((x, y) => x.Aptidao.CompareTo(y.Aptidao));
-            Geracao novaGeracao = new Geracao(novaPopulacao, NumGeracoes + 1, _stopwatch.ElapsedMilliseconds);
+            Geracao novaGeracao = new Geracao(novaPopulacao, NumGeracoes + 1, _stopwatch.ElapsedTicks);
             Geracoes.Add(novaGeracao);
         }
 
@@ -96,7 +97,7 @@ namespace T1_IA
                 }
                 for (int i = 0; i < numMutacoes; i++)
                 {
-                    _aplicarMutacao(filho);
+                    filho.AplicarMutacao(Opcoes);
                 }
                 filho.Rota = filho.Rota.Take(Opcoes.LimiteMovimentos).ToList();
                 filho.RecalcularComida();
@@ -126,110 +127,7 @@ namespace T1_IA
             filho.Rota.AddRange(rotaFinal);
 
             return filho;
-        }
-
-        private void _aplicarMutacao(Agente agente)
-        {
-            int dist = Labirinto.Dimensao * Opcoes.TaxaMutacao / 50;
-            int chanceTam = 50 * Opcoes.TaxaMutacao / 25;
-            int chanceMut = 25 * Opcoes.TaxaMutacao / 25;
-
-            for (int i = 0; i < 4; i++)
-            {
-                int rand = _rand.Next(1, 101);
-                if (rand <= chanceTam)
-                {
-                    _reduzTamanho(agente, dist);
-                    if (rand <= chanceMut)
-                        _explorar(agente, dist);
-                }
-            }
-        }
-
-            private void _reduzTamanho(Agente agente, int dist)
-        {   
-            int indexPivot = _rand.Next(1, agente.Rota.Count);
-            int indexGoal = agente.Rota.Count - 1;
-            if (indexPivot + dist < agente.Rota.Count)
-            {
-                indexGoal = indexPivot + dist;
-            }
-            else if (indexPivot - dist > 0)
-            {
-                indexGoal = indexPivot;
-                indexPivot = indexGoal - dist;
-            }
-            else
-            {
-                indexPivot = 0;
-            }
-
-            (int, int) pivot = agente.Rota[indexPivot].Destino;
-            (int, int) goal = agente.Rota[indexGoal].Origem;
-            IEnumerable<Caminho> inicio = agente.Rota.Take(indexPivot+1);
-            IEnumerable<Caminho> fim = agente.Rota.Skip(indexGoal);
-            List<Caminho> rotaAux = new List<Caminho>();
-            if (pivot != goal)
-            {
-                rotaAux = _buscaRota.Buscar(pivot, goal);
-            }                
-            List<Caminho> novaRota = inicio.Concat(rotaAux).Concat(fim).ToList();
-            agente.Rota = novaRota;
-            //Console.WriteLine(Util.ValidaCaminho(novaRota));
-        }
-
-        private void _explorar(Agente agente, int dist)
-        {
-            int indexPivot = _rand.Next(1, agente.Rota.Count);
-            int indexGoal = agente.Rota.Count - 1;
-            if (indexPivot + dist < agente.Rota.Count)
-            {
-                indexGoal = indexPivot + dist;
-            }
-            else if (indexPivot - dist > 0)
-            {
-                indexGoal = indexPivot;
-                indexPivot = indexGoal - dist;
-            }
-            else
-            {
-                indexPivot = 0;
-            }
-            if (_rand.Next(1,101) > 500)
-            {
-                indexGoal = agente.Rota.Count - 1;
-                indexPivot = indexGoal - dist < 0 ? 0 : indexGoal - dist;
-            }
-
-            (int, int) pivot = agente.Rota[indexPivot].Destino;
-            (int, int) firstGoal = agente.Rota[indexGoal].Destino;
-            (int, int) goal = firstGoal;
-            List<Caminho> toGoal = new List<Caminho>();
-
-            for (int i = 0; i < dist; i++)
-            {
-                (int, int) prev = goal;
-                Celula celGoal = Labirinto.Celulas.GetValueOrDefault(goal)!;
-                List<(int, int)> vizinhos = celGoal.Caminhos.Select(x => x.Destino).ToList();
-                List<(int, int)> vizNaoVisitados = vizinhos.Where(x => !agente.Rota.Select(y => y.Destino).Contains(x)).ToList();
-                vizNaoVisitados.Remove(Labirinto.Entrada);
-                if (vizNaoVisitados.Count > 0)
-                    goal = vizNaoVisitados[_rand.Next(vizNaoVisitados.Count)];
-                else
-                    goal = vizinhos[_rand.Next(vizinhos.Count)];
-                TipoCaminho? direcao = Util.GetDirecaoFromCoords(goal, prev);
-                Caminho caminho = new Caminho(prev, goal, (TipoCaminho)direcao!);
-                toGoal.Add(caminho);
-            }
-            toGoal.Reverse();
-
-            List<Caminho> rota = _buscaRota.Buscar(pivot, goal);
-            IEnumerable<Caminho> inicio = agente.Rota.Take(indexPivot + 1);
-            IEnumerable<Caminho> fim = agente.Rota.Skip(indexGoal + 1);
-            List<Caminho> novaRota = inicio.Concat(rota).Concat(toGoal).Concat(fim).ToList();
-            //Console.WriteLine(Util.ValidaCaminho(novaRota));
-            agente.Rota = novaRota;
-        }
+        }        
 
         private Agente _selecionarPopulacao(List<int> aptidaoAcumulada, List<Agente> populacao)
         {
