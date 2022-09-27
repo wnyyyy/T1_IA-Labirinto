@@ -17,9 +17,10 @@ namespace T1_IA
         public double Aptidao { get; set; }
         public int Geracao { get; }
         public List<Mutacao> Mutacoes { get; }
+        public Crossover? Crossover { get; private set; }
         public long TempoMutacoes => Mutacoes.Sum(x => x.TempoTotal);
 
-        public Agente(Labirinto labirinto, int id, int geracao)
+        public Agente(Labirinto labirinto, int id, int geracao, Crossover? crossover = null)
         {
             Aptidao = 1.0;
             Id = id;
@@ -29,6 +30,7 @@ namespace T1_IA
             Rota = new List<Caminho>();
             Geracao = geracao;
             Mutacoes = new List<Mutacao>();
+            Crossover = crossover;
         }
 
         public List<Caminho> CaminhoFromToCoords((int, int) from, (int, int) to)
@@ -135,7 +137,8 @@ namespace T1_IA
         public override string ToString()
         {
             return "Agente " + Id + ", Ger. " + Geracao + " - " + ComidasColetadas.Count() + " comidas coletadas | aptidão: "
-                + string.Format("{0:0.000}", Aptidao)+" | Tamanho da rota: "+Rota.Count + " | Repetições na rota: " + (Rota.Count - Rota.GroupBy(x => x.Destino).Count());
+                + string.Format("{0:0.000}", Aptidao)+" | Tamanho da rota: "+Rota.Count + " | Repetições na rota: " + (Rota.Count - Rota.GroupBy(x => x.Destino).Count()
+                + " | Mutações: " + Mutacoes.Count);
         }
     }
 }

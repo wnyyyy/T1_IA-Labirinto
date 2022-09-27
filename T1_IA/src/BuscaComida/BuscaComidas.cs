@@ -86,9 +86,8 @@ namespace T1_IA
             List<int> aptidaoAcumulada = _getAptidaoAcumulada(best50);
             while (novaPopulacao.Count < Opcoes.TamPopulacao)
             {
-                Agente a1 = _selecionarPopulacao(aptidaoAcumulada, best50);
-                Agente a2 = _selecionarPopulacao(aptidaoAcumulada, best50);
-                Agente filho = _criarFilho(a1, a2, id);
+                Crossover crossover = new Crossover(aptidaoAcumulada, best50, Labirinto);
+                Agente filho = crossover.CriarFilho(id, NumGeracoes);
                 int numMutacoes = 0;
                 for (int i = 0; i < 3; i++)
                 {
@@ -106,43 +105,7 @@ namespace T1_IA
                 novaPopulacao.Add(filho);
                 id++;
             }
-        }
-
-        private Agente _criarFilho(Agente a1, Agente a2, int id)
-        {        
-            Agente filho = new Agente(Labirinto, id, NumGeracoes);
-            int size = Math.Min(a1.Rota.Count, a2.Rota.Count);
-
-            List<Caminho> rotaInicial = a1.Rota.Take(size/2).ToList();
-            List<Caminho> rotaFinal = a2.Rota.Skip(size/2).ToList();
-            (int, int) destInicio = rotaInicial[rotaInicial.Count-1].Destino;
-            (int, int) origFinal = rotaFinal[0].Origem;
-
-            filho.Rota.AddRange(rotaInicial);
-            if (origFinal != destInicio)
-            {
-                List<Caminho> rotaAux = _buscaRota.Buscar(destInicio, origFinal);
-                filho.Rota.AddRange(rotaAux);
-            }
-            filho.Rota.AddRange(rotaFinal);
-
-            return filho;
         }        
-
-        private Agente _selecionarPopulacao(List<int> aptidaoAcumulada, List<Agente> populacao)
-        {
-            int p = _rand.Next(aptidaoAcumulada.Last());
-            int index = -1;
-            for (int i = 0; i < aptidaoAcumulada.Count; i++)
-            {
-                if (aptidaoAcumulada[i] > p)
-                {
-                    index = i;
-                    break;
-                }
-            }
-            return populacao[index];
-        }
 
         private List<int> _getAptidaoAcumulada(List<Agente> populacao)
         {
