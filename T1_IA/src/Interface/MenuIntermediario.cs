@@ -24,7 +24,7 @@ namespace T1_IA.Interface
                         try
                         {
                             _appendScr(screen);
-                            Console.WriteLine("Informe o coeficiente do tamanho da população (recomendado = 10)");
+                            Console.WriteLine("Informe o coeficiente do tamanho da população (recomendado = 15)");
                             Console.WriteLine("O coeficiente é uma porcentagem aplicada ao tamanho base da população: 300");
                             Console.WriteLine();
                             int coefTamPopulacao = Util.LerInt();

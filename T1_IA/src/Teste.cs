@@ -56,37 +56,37 @@ namespace T1_IA
             //};
             #endregion
             #region teste população
-            int[] arrElitismo = {
-                20, 20, 20, 20, 20, 20, 20, 20
-            };
-            int[] arrTaxaMutacao = {
-                35, 35, 35, 35, 35, 35, 35, 35
-            };
-            int[] arrCoefTamanhoPopulacao = {
-                10, 15, 20, 25, 30, 35, 40, 45
-            };
-            int[] arrAgressividadeMutacao = {
-                100, 100, 100, 100, 100, 100, 100, 100
-            };
+            //int[] arrElitismo = {
+            //    20, 20, 20, 20, 20, 20, 20, 20
+            //};
+            //int[] arrTaxaMutacao = {
+            //    35, 35, 35, 35, 35, 35, 35, 35
+            //};
+            //int[] arrCoefTamanhoPopulacao = {
+            //    10, 15, 20, 25, 30, 35, 40, 45
+            //};
+            //int[] arrAgressividadeMutacao = {
+            //    100, 100, 100, 100, 100, 100, 100, 100
+            //};
             #endregion
 
             #region teste único
-            //int[] arrElitismo = {
-            //    20
-            //};
-            //int[] arrTaxaMutacao = {
-            //    35
-            //};
-            //int[] arrCoefTamanhoPopulacao = {
-            //    20
-            //};
-            //int[] arrAgressividadeMutacao = {
-            //    100
-            //};
+            int[] arrElitismo = {
+                20
+            };
+            int[] arrTaxaMutacao = {
+                35
+            };
+            int[] arrCoefTamanhoPopulacao = {
+                15
+            };
+            int[] arrAgressividadeMutacao = {
+                100
+            };
             #endregion
 
             int numGeracoes = 100;
-            int loops = 1000;
+            int loops = 100;
             double targetAptidao1 = 0.040;
             double targetAptidao2 = 0.020;
 
@@ -134,7 +134,7 @@ namespace T1_IA
             sb.Append(coefTamanhoPopulacao*10);
             sb.AppendLine();
             sb.Append("Número de Gerações: ");
-            sb.Append(loops);
+            sb.Append(numGeracoes);
             sb.AppendLine();
             sb.AppendLine();
             StringBuilder sb2 = new StringBuilder();
