@@ -13,19 +13,28 @@ namespace T1_IA
         public Agente FirstParent { get; private set; }
         public Agente SecondParent { get; private set; }
         public Labirinto Labirinto { get; private set; }
+        public long TempoSelecao { get; private set; }
+        public long TempoCrossover{ get; private set; }
         private Random _rand = new Random();
+        private Stopwatch _stopwatch = new Stopwatch();
         private BuscaRota _buscaRota;
 
         public Crossover(List<int> aptidaoAcumulada, List<Agente> populacao, Labirinto labirinto)
         {
+            _stopwatch.Restart();
             FirstParent = _selecionarPopulacao(aptidaoAcumulada, populacao);
             SecondParent = _selecionarPopulacao(aptidaoAcumulada, populacao);
+            _stopwatch.Restart();
+            TempoSelecao = _stopwatch.ElapsedTicks;
+            TempoCrossover = 0;
             Labirinto = labirinto;
             _buscaRota = new BuscaRota(labirinto);
+
         }
 
         public Agente CriarFilho(int id, int numGeracoes)
         {
+            _stopwatch.Restart();
             Agente filho = new Agente(Labirinto, id, numGeracoes, this);
             int size = Math.Min(FirstParent.Rota.Count, SecondParent.Rota.Count);
 
@@ -41,6 +50,8 @@ namespace T1_IA
                 filho.Rota.AddRange(rotaAux);
             }
             filho.Rota.AddRange(rotaFinal);
+            _stopwatch.Stop();
+            TempoCrossover = _stopwatch.ElapsedTicks;
 
             return filho;
         }

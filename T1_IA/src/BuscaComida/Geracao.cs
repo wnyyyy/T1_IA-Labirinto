@@ -18,5 +18,21 @@ namespace T1_IA
             Numero = numero;
             TempoGerada = tempoGerada;
         }
+
+        public override string ToString()
+        {
+            int count = Math.Max(1, Populacao.Count / 10);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Geração ").AppendLine(Numero.ToString());
+            sb.Append("Tempo de geração: ");
+            sb.Append(String.Format("{0:0.##}", (double)TempoGerada / TimeSpan.TicksPerMillisecond));
+            sb.AppendLine(" ms");
+            sb.AppendLine();
+            for (int i = 0; i < count; i++)
+            {
+                sb.AppendLine(Populacao[i].ToString());
+            }
+            return sb.ToString();
+        }
     }
 }

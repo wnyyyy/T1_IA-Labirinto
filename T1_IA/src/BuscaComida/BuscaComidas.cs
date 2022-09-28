@@ -87,7 +87,7 @@ namespace T1_IA
             while (novaPopulacao.Count < Opcoes.TamPopulacao)
             {
                 Crossover crossover = new Crossover(aptidaoAcumulada, best50, Labirinto);
-                Agente filho = crossover.CriarFilho(id, NumGeracoes);
+                Agente filho = crossover.CriarFilho(id, NumGeracoes+1);
                 int numMutacoes = 0;
                 for (int i = 0; i < 3; i++)
                 {

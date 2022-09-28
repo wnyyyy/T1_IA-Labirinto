@@ -12,9 +12,8 @@ namespace T1_IA.Interface
         {
             _appendScr(screen);
             Console.WriteLine("1 - Iniciar Busca");
-            Console.WriteLine("2 - Iniciar Busca");
-            Console.WriteLine("3 - Voltar");
-            Console.WriteLine("4 - Sair");
+            Console.WriteLine("2 - Voltar");
+            Console.WriteLine("3 - Sair");
             bool quit = false;
             while (quit == false)
             {
@@ -28,24 +27,15 @@ namespace T1_IA.Interface
                             Console.WriteLine("Informe o coeficiente do tamanho da população (recomendado = 10)");
                             Console.WriteLine("A população total é igual a 300/coeficiente");
                             Console.WriteLine();
-                            string? inp = null;
-                            while (inp is null)
-                                inp = Console.ReadLine();
-                            int coefTamPopulacao = Int32.Parse(inp);
+                            int coefTamPopulacao = Util.LerInt();
                             _appendScr(screen);
                             Console.WriteLine("Informe a porcentagem de elitismo (recomendado = 20)");
                             Console.WriteLine();
-                            inp = null;
-                            while (inp is null)
-                                inp = Console.ReadLine();
-                            int elitismo = Int32.Parse(inp);
+                            int elitismo = Util.LerInt();
                             _appendScr(screen);
                             Console.WriteLine("Informe a taxa de Mutação (recomendado = 25)");
                             Console.WriteLine();
-                            inp = null;
-                            while (inp is null)
-                                inp = Console.ReadLine();
-                            int taxaMutacao = Int32.Parse(inp);
+                            int taxaMutacao = Util.LerInt();
                             BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamPopulacao, taxaMutacao, 100, elitismo);
                             MenuBuscador.Show(screen, buscaComidas);
                         }
@@ -56,10 +46,10 @@ namespace T1_IA.Interface
                             MenuIntermediario.Show(screen, labirinto);
                         }
                         break;
-                    case '5':
+                    case '2':
                         MenuInicio.Show(screen);
                         break;
-                    case '6':
+                    case '3':
                         quit = true;
                         break;
                     default:

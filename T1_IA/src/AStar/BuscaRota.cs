@@ -62,6 +62,18 @@ namespace T1_IA.AStar
             return new List<Caminho>();
         }
 
+        public List<Caminho> Buscar(List<(int,int)> coords, (int,int) start)
+        {
+            List<Caminho> caminho = new List<Caminho>();
+            (int, int) from = start;
+            foreach ((int, int) x in coords)
+            {
+                caminho.AddRange(Buscar(from, x));
+                from = x;
+            }
+            return caminho;
+        }
+
         private List<Caminho> _final(Nodo fim)
         {
             List<Caminho> ret = new List<Caminho>();

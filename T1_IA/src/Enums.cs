@@ -11,7 +11,9 @@ namespace T1_IA
         Comida = 'C',
         Entrada = 'E',
         Parede = '1',
-        Vazio = '0'
+        Vazio = '0',
+        ComidaColetada = 'x',
+        Agente = 'A',
     }
 
     enum TipoCaminho

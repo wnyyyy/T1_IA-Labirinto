@@ -1,4 +1,6 @@
-﻿namespace T1_IA
+﻿using T1_IA.AStar;
+
+namespace T1_IA
 {
     class Program
     {
@@ -10,17 +12,20 @@
             int taxaMutacao = 25; // 0 ~ 100
             int agressividadeMutacao = 100; // em %. quanto maior, mais comidas coletadas mas maior rota
             int elitismo = 20; // 0 ~ 100
-            BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, taxaMutacao, agressividadeMutacao, elitismo);
+            //BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, taxaMutacao, agressividadeMutacao, elitismo);
             //for (int i = 0; i < 100; i++)
             //{
             //    buscaComidas.NovaGeracao();
-                //foreach (Agente agente in buscaComidas.PopulacaoAtual)
-                //{
-                //    Console.WriteLine(Util.ValidaCaminho(agente.Rota));
-                //}
+            //    foreach (Agente agente in buscaComidas.PopulacaoAtual)
+            //    {
+            //        Console.WriteLine(Util.ValidaCaminho(agente.Rota));
+            //    }
             //}
-            Teste.Testar();
-            //Tela tela = new Tela();
-    }
+            //Teste.Testar();
+            Tela tela = new Tela();
+            //BuscaRota buscaRota = new BuscaRota(labirinto);
+            //List<Caminho> caminhoList = buscaRota.Buscar(labirinto.Comidas, labirinto.Entrada);
+            //bool valido = Util.ValidaCaminho(caminhoList);
+        }
     }
 }

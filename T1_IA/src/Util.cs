@@ -59,6 +59,23 @@ namespace T1_IA
             return true;
         }
 
+        public static int LerInt()
+        {
+            int count = 0;
+            try
+            {
+                string? inp = null;
+                while (inp is null)
+                    inp = Console.ReadLine();
+                count = Int32.Parse(inp);
+            }
+            catch (Exception)
+            {
+                LerInt();
+            }
+            return count;
+        }
+
         private static (int, int) _calcCoords((int, int) from, (int, int) to)
         {
             int x1 = from.Item1;
