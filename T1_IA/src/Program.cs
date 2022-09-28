@@ -22,6 +22,7 @@ namespace T1_IA
             //    }
             //}
             //Teste.Testar();
+            Tela tela = new Tela();
         }
     }
 }
