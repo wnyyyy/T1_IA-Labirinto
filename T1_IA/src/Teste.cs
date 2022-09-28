@@ -13,51 +13,63 @@ namespace T1_IA
         {
             Labirinto labirinto = new Labirinto("labirinto1.txt");
 
-            //int[] elitismo = { 
-            //    20, 20, 20, 20, 20, 20, 20, 20, 20, 10, 30, 40, 0
-            //};
-            //int[] taxaMutacao = {
-            //    0, 100, 75, 50, 25, 15, 10, 5, 25, 25, 25, 25, 25
-            //};
-            //int[] coefTamanhoPopulacao = {
-            //    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
-            //};
-
+            #region teste mutação 1
             //int[] arrElitismo = {
-            //    0, 10, 15, 20, 25, 30, 35, 40, 50
+            //    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
             //};
             //int[] arrTaxaMutacao = {
-            //    25, 25, 25, 25, 25, 25, 25, 25, 25
+            //    25, 25, 25, 50, 50, 50, 75, 75, 75, 15, 15, 15, 100, 100, 100
             //};
             //int[] arrCoefTamanhoPopulacao = {
-            //    10, 10, 10, 10, 10, 10, 10, 10, 10
-            //};
-
-            //int[] arrElitismo = {
-            //    20, 20, 20, 20, 20, 20, 20
-            //};
-            //int[] arrTaxaMutacao = {
-            //    25, 25, 25, 25, 25, 25, 25
-            //};
-            //int[] arrCoefTamanhoPopulacao = {
-            //    10, 10, 10, 10, 10, 10, 10
+            //    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
             //};
             //int[] arrAgressividadeMutacao = {
-            //    70, 80, 90, 100, 110, 120, 130
+            //    100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100
             //};
+            #endregion
+            #region teste mutação 2
+            //int[] arrElitismo = {
+            //    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
+            //};
+            //int[] arrTaxaMutacao = {
+            //    25, 25, 25, 30, 30, 30, 35, 35, 35, 40, 40, 40, 50, 50, 50
+            //};
+            //int[] arrCoefTamanhoPopulacao = {
+            //    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+            //};
+            //int[] arrAgressividadeMutacao = {
+            //    100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100
+            //};
+            #endregion
+            #region teste mutação 3
+            //int[] arrElitismo = {
+            //    20, 20, 20
+            //};
+            //int[] arrTaxaMutacao = {
+            //    25, 30, 35
+            //};
+            //int[] arrCoefTamanhoPopulacao = {
+            //    10, 10, 10
+            //};
+            //int[] arrAgressividadeMutacao = {
+            //    100, 100, 100
+            //};
+            #endregion
 
+            #region teste único
             int[] arrElitismo = {
-                20, 20, 20, 20, 20, 20, 20
+                20
             };
             int[] arrTaxaMutacao = {
-                20, 25, 30, 25, 20, 25, 30
+                35
             };
             int[] arrCoefTamanhoPopulacao = {
-                10, 10, 10, 10, 10, 10, 10
+                10
             };
             int[] arrAgressividadeMutacao = {
-                100, 100, 100, 100, 100, 100, 100
+                100
             };
+            #endregion
 
             int numGeracoes = 100;
             int loops = 100;
@@ -123,6 +135,7 @@ namespace T1_IA
                 {
                     buscar.PopulacaoAtual.Sort((x, y) => x.Aptidao.CompareTo(y.Aptidao));
                     buscar.NovaGeracao();
+                    Console.WriteLine("Geração "+j+" | Loop "+i);
                     lstTempoGeracao.Add((double)buscar.Geracoes.Last().TempoGerada / TimeSpan.TicksPerMillisecond);
                 }
                 lstTempoExecucao.Add((double)buscar.TempoTotal / TimeSpan.TicksPerMillisecond);

@@ -90,8 +90,6 @@ namespace T1_IA
             int ptsTamanho = opcoes.LimiteMovimentos - Rota.Count;
             int ptsTotal = ptsColeta + ptsTamanho + ptsUnicidade;
             Aptidao = 1.0 - ((double)ptsTotal / opcoes.CeilingPts);
-
-            //agente.Aptidao = ((1 - (double)agente.ComidasColetadas.Count / Labirinto.NumComidas) + (double)qtdRepetidos / LimiteMovimentos) / 2;
         }
 
         public void RecalcularComida()
@@ -99,29 +97,35 @@ namespace T1_IA
             ComidasColetadas.Clear();
             IEnumerable<(int, int)> coleta = Rota.Where(x => Labirinto.Celulas.GetValueOrDefault(x.Destino)!.IsComida()).Select(x => x.Destino).Distinct();
             ComidasColetadas.AddRange(coleta);
+            if (IsSatisfeito())
+            {
+                int indexLast = Rota.FindLastIndex(x => x.Destino == ComidasColetadas.Last());
+                Rota = Rota.Take(indexLast+1).ToList();
+            }
         }
 
         public void AplicarMutacao(Opcoes opcoes)
         {
-            Random rand = new Random();            
-            int chanceTam = 50 * opcoes.TaxaMutacao / 25;
-            int chanceMut = chanceTam/2 * opcoes.TaxaMutacao / 25 * opcoes.AgressividadeMutacao/100 ;
+            Random rand = new Random();
+            int chanceTam = 50;
+            int chanceExp = 25;
+            int numMut = 3 * opcoes.TaxaMutacao / 25;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < numMut; i++)
             {
                 int proc = rand.Next(1, 101);
-                bool reduzir = false;
+                bool reduzir;
                 bool explorar = false;
                 if (proc <= chanceTam)
                 {
                     reduzir = true;
-                    if (proc <= chanceMut)
+                    if (proc <= chanceExp)
                         explorar = true;
                     Mutacao mutacao = new Mutacao(reduzir, explorar, this, opcoes, Labirinto);
                     Mutacoes.Add(mutacao);
                 }
             }
-        }        
+        }
 
         private void _checarCampo()
         {

@@ -26,7 +26,7 @@ namespace T1_IA
         {
             Labirinto = labirinto;
             _buscaRota = new BuscaRota(labirinto);
-            Distancia = opcoes.Dimensao * opcoes.TaxaMutacao / 50;
+            Distancia = opcoes.Dimensao / 2 * opcoes.AgressividadeMutacao/100;
             TempoReducao = -1;
             TempoExploracao = -1;
             Reduz = reduzir;
@@ -41,7 +41,7 @@ namespace T1_IA
         {
             _stopwatch.Restart();
             int dist = Distancia;
-            int indexPivot = _rand.Next(1, agente.Rota.Count);
+            int indexPivot = _rand.Next(0, agente.Rota.Count);
             int indexGoal = agente.Rota.Count - 1;
             if (indexPivot + dist < agente.Rota.Count)
             {

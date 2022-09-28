@@ -88,24 +88,15 @@ namespace T1_IA
             {
                 Crossover crossover = new Crossover(aptidaoAcumulada, best50, Labirinto);
                 Agente filho = crossover.CriarFilho(id, NumGeracoes+1);
-                int numMutacoes = 0;
-                for (int i = 0; i < 3; i++)
-                {
-                    if (_rand.Next(1, 101) <= Opcoes.TaxaMutacao)
-                        numMutacoes++;
-                }
-                for (int i = 0; i < numMutacoes; i++)
-                {
-                    filho.AplicarMutacao(Opcoes);
-                }
-                filho.Rota = filho.Rota.Take(Opcoes.LimiteMovimentos).ToList();
+                filho.AplicarMutacao(Opcoes);
+                filho.Rota = filho.Rota.Take(Opcoes.LimiteMovimentos).ToList();                
                 filho.RecalcularComida();
                 filho.RecalcularAptidao(Opcoes);
                 //Console.WriteLine(Util.ValidaCaminho(filho.Rota));
                 novaPopulacao.Add(filho);
                 id++;
             }
-        }        
+        }
 
         private List<int> _getAptidaoAcumulada(List<Agente> populacao)
         {

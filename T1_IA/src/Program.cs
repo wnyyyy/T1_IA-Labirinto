@@ -8,10 +8,10 @@ namespace T1_IA
         {
             Labirinto labirinto = new Labirinto("labirinto1.txt");
 
-            int coefTamanhoPopulacao = 10;
-            int taxaMutacao = 25; // 0 ~ 100
-            int agressividadeMutacao = 100; // em %. quanto maior, mais comidas coletadas mas maior rota
-            int elitismo = 20; // 0 ~ 100
+            //int coefTamanhoPopulacao = 10;
+            //int taxaMutacao = 25; // 0 ~ 100
+            //int agressividadeMutacao = 100; // em %. quanto maior, mais comidas coletadas mas maior rota
+            //int elitismo = 20; // 0 ~ 100
             //BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamanhoPopulacao, taxaMutacao, agressividadeMutacao, elitismo);
             //for (int i = 0; i < 100; i++)
             //{
@@ -22,10 +22,6 @@ namespace T1_IA
             //    }
             //}
             //Teste.Testar();
-            Tela tela = new Tela();
-            //BuscaRota buscaRota = new BuscaRota(labirinto);
-            //List<Caminho> caminhoList = buscaRota.Buscar(labirinto.Comidas, labirinto.Entrada);
-            //bool valido = Util.ValidaCaminho(caminhoList);
         }
     }
 }

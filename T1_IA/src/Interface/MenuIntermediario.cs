@@ -25,7 +25,7 @@ namespace T1_IA.Interface
                         {
                             _appendScr(screen);
                             Console.WriteLine("Informe o coeficiente do tamanho da população (recomendado = 10)");
-                            Console.WriteLine("A população total é igual a 300/coeficiente");
+                            Console.WriteLine("O coeficiente é uma porcentagem aplicada ao tamanho base da população: 300");
                             Console.WriteLine();
                             int coefTamPopulacao = Util.LerInt();
                             _appendScr(screen);
@@ -33,7 +33,8 @@ namespace T1_IA.Interface
                             Console.WriteLine();
                             int elitismo = Util.LerInt();
                             _appendScr(screen);
-                            Console.WriteLine("Informe a taxa de Mutação (recomendado = 25)");
+                            Console.WriteLine("Informe a taxa de Mutação (recomendado = 35 ou 25~42)");
+                            Console.WriteLine("Maior taxa de mutação aumenta a chance de achar todas as comidas, mas deixa a rota mais subótima");
                             Console.WriteLine();
                             int taxaMutacao = Util.LerInt();
                             BuscaComidas buscaComidas = new BuscaComidas(labirinto, coefTamPopulacao, taxaMutacao, 100, elitismo);
