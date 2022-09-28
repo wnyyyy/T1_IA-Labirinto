@@ -55,24 +55,38 @@ namespace T1_IA
             //    100, 100, 100
             //};
             #endregion
-
-            #region teste único
+            #region teste população
             int[] arrElitismo = {
-                20
+                20, 20, 20, 20, 20, 20, 20, 20
             };
             int[] arrTaxaMutacao = {
-                35
+                35, 35, 35, 35, 35, 35, 35, 35
             };
             int[] arrCoefTamanhoPopulacao = {
-                10
+                10, 15, 20, 25, 30, 35, 40, 45
             };
             int[] arrAgressividadeMutacao = {
-                100
+                100, 100, 100, 100, 100, 100, 100, 100
             };
             #endregion
 
+            #region teste único
+            //int[] arrElitismo = {
+            //    20
+            //};
+            //int[] arrTaxaMutacao = {
+            //    35
+            //};
+            //int[] arrCoefTamanhoPopulacao = {
+            //    20
+            //};
+            //int[] arrAgressividadeMutacao = {
+            //    100
+            //};
+            #endregion
+
             int numGeracoes = 100;
-            int loops = 100;
+            int loops = 1000;
             double targetAptidao1 = 0.040;
             double targetAptidao2 = 0.020;
 
@@ -126,6 +140,7 @@ namespace T1_IA
             StringBuilder sb2 = new StringBuilder();
             List<double> lstTempoGeracao = new List<double>();
             List<double> lstTempoExecucao = new List<double>();
+            double aux = 0;
             for (int i = 1; i <= loops; i++)
             {
                 sb2.AppendLine("Execução " + i);
@@ -151,11 +166,12 @@ namespace T1_IA
                             numTarget2++;
                         }                            
                     }
+                    aux++;
                 }
                 sb2.AppendLine();
                 sb2.AppendLine();
             }
-            sb.AppendLine("Target 1: " + String.Format("{0:0.##}", (double)numTarget1 / 3) + "%| Target 2: " + String.Format("{0:0.##}", (double)numTarget2 / 3) + "%");
+            sb.AppendLine("Target 1: " + String.Format("{0:0.##}", (double)(numTarget1*100.0 / aux)) + "%| Target 2: " + String.Format("{0:0.##}", (double)(numTarget2*100.0 / aux)) + "%");
             sb.AppendLine();
             sb.Append("Mediana Tempo por Nova Geração: ");
             sb.AppendLine(String.Format("{0:0.#}", lstTempoGeracao.Median()) + " ms");
